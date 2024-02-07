@@ -5,7 +5,6 @@
     padding: 0;
     box-sizing:border-box;
     font-family: 'Poppins', sans-serif;
-    color: white;
 }
 
 body{
@@ -16,6 +15,7 @@ body{
     background: url('/img/login-bg.jpg') no-repeat;
     background-size: cover;
     background-position: center;
+    color: white;
 }
 
 header{
@@ -30,18 +30,13 @@ header{
     z-index: 99;
 }
 
-.logo{
-    font-size: 2rem;
-    color: white;
-    user-select: none;
-}
-
 .nav-bar a{
     position: relative;
     text-decoration: none;
     font-size: 1.1rem;
     font-weight: 500;
     margin: 25px;   
+    color: white;
 }
 
 .nav-bar a::after{
@@ -78,8 +73,8 @@ header{
 }
 
 .nav-bar .login-btn:hover{
-    background: white;
-    color: black
+    background: black;
+    color: white;
 }
 
 .user-auth{
@@ -93,6 +88,17 @@ header{
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    transform: scale(0);
+    transition: transform .5s ease, height .2s ease;
+}
+
+.user-auth.register-btn{
+    transform: scale(1);
+}
+
+.user-auth.register{
+    height: 520px;
 }
 
 .user-auth .form-box{
@@ -100,8 +106,46 @@ header{
     padding: 40px;
 }
 
+user-auth .form-box.login{
+    transition: transform .18s ease;
+    transform: translateX(0);
+}
+
+.user-auth.register .form-box.login{
+    transition: tranform .18s ease;
+    transform: translateX(-400px);
+}
+
+.user-auth .form-box.register{
+    position: absolute;
+    transition: none;
+    transform: translateX(400px);
+}
+
+.user-auth.register .form-box.register{
+    transition: transform .18s ease;
+    transform: translateX(0);
+}
+
+
+.user-auth .icon-close{
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    background:white;
+    font-size: 2em;
+    color:black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom-left-radius: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+
 .form-box h2{
-    font-size: 2rem;
+    font-size: 2em;
     color: white;
     text-align: center;
 }
@@ -119,7 +163,7 @@ header{
     top: 50%;
     left: 5px;
     transform: translateY(-50%);
-    font-size: 1rem;
+    font-size: 1em;
     color: white;
     font-weight: 500;
     pointer-events: none;
@@ -127,7 +171,7 @@ header{
 }
 
 .input-box input:focus~label,
-.input-box input:valid~label{
+.input-box input:valid~label {
     top: -5px;
 }
 
@@ -139,14 +183,14 @@ header{
     outline: none;
     font-size: 1em;
     color: white;
-    font-weight: 600;
+    font-weight: 500;
     padding: 0 35px 0 5px;
 }
 
 .input-box .icon{
     position: absolute;
     right: 8px;
-    font-size: 1.2rem;
+    font-size: 1.2em;
     color: white;
     line-height: 57px;
 }
@@ -184,8 +228,14 @@ header{
     border-radius: 6px;
     cursor: pointer;
     font-size: 1em;
-    color: black;
+    color: rgb(5, 5, 5);
     font-weight: 500;
+    transition: .5s;
+}
+
+.btn:hover{
+    background: rgb(5, 5, 5);
+    color: white;
 }
 
 .login-register{
