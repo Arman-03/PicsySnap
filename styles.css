@@ -1,5 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,400&display=swap');
 
+#grad1 {
+    background: red;
+    background: -webkit-linear-gradient(left, orange , violet);
+    background: -o-linear-gradient(right, orange,  violet);
+    background: -moz-linear-gradient(right, orange, violet);
+    background: linear-gradient(to right, orange , violet);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 3vw;
+}
+
 *{
     margin: 0;
     padding: 0;
@@ -65,4 +76,69 @@ nav ul li a:hover {
     padding-bottom: 3px;
     font-size: 22px;
     border-radius: 8px;
+}
+
+.center-square {
+    
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;  /* adjust as needed */
+    height: 50%; /* adjust as needed */
+    margin: 150px auto 0; /* centers the square horizontally */
+  
+}
+.center-square2 {
+    
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width: 900px;  /* adjust as needed */
+    height: 500px; /* adjust as needed */
+    margin: 25px auto 0; /* centers the square horizontally */
+    
+}
+.center-square3 {
+    
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;  /* adjust as needed */
+    height: 50%; /* adjust as needed */
+    margin: 25px auto 0; /* centers the square horizontally */
+    
+}
+.center-square4 {
+    
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width: 200px;  /* adjust as needed */
+    height: 100px; /* adjust as needed */
+    margin: 25px auto 0; /* centers the square horizontally */
+    
+}
+.large-text {
+    font-size: 3em; /* adjust as needed */
+}
+.special-font {
+    font-family: Arial, sans-serif; /* replace with your desired font */
+}
+
+.modern-button {
+    background-color: #3379e9; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 12px;
 }
