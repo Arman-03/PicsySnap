@@ -1,0 +1,277 @@
+<html>
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Images</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #container {
+            max-width: 800px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #dropArea {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 200px;
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .imageBox {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            cursor: pointer; /* Add cursor pointer for selection */
+        }
+
+        .imageBox img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .imageBox:hover {
+            transform: scale(1.05);
+        }
+
+        .selected {
+            border-color: #ff6f61; /* Light red */
+        }
+
+        #selectedImagesContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .selectedImage {
+            margin: 10px;
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+            border: 2px solid #ff6f61; /* Light red */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .selectedImage img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+
+</head>
+<body>
+	
+	<div id="container">
+        <h2>Uploaded Images</h2>
+        <div id="fileList">
+            <!-- Uploaded images will be displayed here -->
+        </div>
+
+        <h2>Selected Images</h2>
+        <div id="selectedImagesContainer">
+        
+            <!-- Selected images will be displayed here -->
+        </div>
+        <h2>Audio Files</h2>
+        <div id="audioList">
+            <!-- Audio elements will be added here dynamically -->
+        </div>
+        <div id="display" align="center" >
+            <form action="/video">
+                <input type = 'submit' value="createVideo" onclick="Uploaded()" />
+            </form></div>
+    </div>
+<script type="text/javascript">
+var links = null;
+var audioElements = [];
+window.onload = function(){
+	var text = '{{link}}';
+	links = text.split("$")
+	var fileListDiv = document.getElementById('fileList');
+	for(var i=0;i<links.length-1;i++){
+		handleFiles(links[i],fileListDiv)
+		}
+        var audioListDiv = document.getElementById('audioList');
+    var audioDirectory = '/static/audio/';
+    var audioFiles = ['Audio1.mp3', 'Audio2.mp3', 'Audio3.mp3', 'Audio4.mp3', 'Audio5.mp3'];
+
+    audioFiles.forEach(function(filename) {
+        var audio = new Audio(audioDirectory + filename);
+        audio.controls = true;
+        var audioWrapper = document.createElement('div');
+        audioWrapper.className = 'audioWrapper';
+        var audioCheckbox = document.createElement('input');
+        audioCheckbox.type = 'checkbox';
+        audioCheckbox.className = 'audioCheckbox';
+        audioCheckbox.addEventListener('change', function () {
+            toggleAudioSelection(audio, audioCheckbox);
+        });
+        audioWrapper.appendChild(audioCheckbox);
+        audioWrapper.appendChild(audio);
+        audioListDiv.appendChild(audioWrapper);
+        audioElements.push({ audio: audio, checkbox: audioCheckbox });
+        
+        // Add event listener for audio play button
+        audio.addEventListener('play', function () {
+            handleAudioPlay(audio);
+        });
+    });
+}    
+	
+function handleFiles(url, fileListDiv) {
+    var img = new Image();
+    img.onload = function () {
+        var imageBox = document.createElement('div');
+        imageBox.className = 'imageBox';
+
+        // Add image
+        imageBox.appendChild(img);
+
+        // Add event listener for image selection
+        imageBox.addEventListener('click', function () {
+            if (imageBox.classList.contains('selected')) {
+                imageBox.classList.remove('selected');
+                removeSelectedImage(img.src);
+            } else {
+                imageBox.classList.add('selected');
+                addSelectedImage(img.src);
+            }
+        });
+        var dimensions = document.createElement('div');
+        console.log(img.width + ' x ' + img.height);
+
+        fileListDiv.appendChild(imageBox);
+    };
+    img.src = url;
+}
+
+function addSelectedImage(src) {
+	var selectedImagesContainer = document.getElementById('selectedImagesContainer');
+	var selectedImage = document.createElement('div');
+	selectedImage.className = 'selectedImage';
+	var img = new Image();
+	img.src = src;
+	selectedImage.appendChild(img);
+	selectedImagesContainer.appendChild(selectedImage);
+}
+
+function removeSelectedImage(src) {
+	var selectedImagesContainer = document.getElementById('selectedImagesContainer');
+	var selectedImages = selectedImagesContainer.getElementsByClassName('selectedImage');
+	for (var i = 0; i < selectedImages.length; i++) {
+		var imageSrc = selectedImages[i].getElementsByTagName('img')[0].src;
+		if (imageSrc === src) {
+			selectedImagesContainer.removeChild(selectedImages[i]);
+			return;
+		}
+	}
+}
+
+
+function toggleAudioSelection(clickedAudio, clickedCheckbox) {
+    audioElements.forEach(function(audioObj) {
+        var audio = audioObj.audio;
+        var checkbox = audioObj.checkbox;
+        
+        if (audio === clickedAudio && clickedCheckbox.checked) {
+            checkbox.checked = true; // Check the checkbox if audio is selected
+        } else {
+            checkbox.checked = false; // Uncheck other checkboxes
+        }
+    });
+}
+function handleAudioPlay(clickedAudio) {
+    audioElements.forEach(function (audioObj) {
+        var audio = audioObj.audio;
+        var checkbox = audioObj.checkbox;
+
+        if (audio !== clickedAudio) {
+            audio.pause(); // Pause other audio
+            checkbox.checked = false; // Uncheck other checkboxes
+        }
+    });
+}
+function Uploaded(){
+    var imagelink = "";
+    var selectedAudio = getSelectedAudio();
+    var audioFileName = "";
+    if (selectedAudio) {
+        audioFileName = selectedAudio.audio.src.split('/').pop();
+    }
+    var div1 = document.getElementById("selectedImagesContainer")
+    var img_div = div1.getElementsByClassName("selectedImage")
+    for (var i = 0;i<img_div.length;i++){
+        imagelink+=img_div[i].getElementsByTagName('img')[0].src +"$"
+    }
+    var data = audioFileName + "$" + imagelink;
+    console.log("image link: " + data);
+    $.ajax({
+        url : "/display" ,
+        type : "POST",
+        data : {'data' : data},
+        error : function(error){
+            console.log(error);
+        }
+    });
+    console.log(2);
+}
+function getSelectedAudio() {
+    var selectedAudio = null;
+    audioElements.forEach(function (audioObj) {
+        var checkbox = audioObj.checkbox;
+        if (checkbox.checked) {
+            selectedAudio = audioObj;
+        }
+    });
+    return selectedAudio;
+}
+</script>
+	
+</body>
+</html>

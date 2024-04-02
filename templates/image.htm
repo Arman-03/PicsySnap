@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Images</title>
+    <link rel="icon" href="/static/images/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffdab9, #a2d9ce);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* height: 100vh; */
+        }
+
+        #container {
+            max-width: 800px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            margin: 20px;
+        }
+
+        #dropArea {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 200px;
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        #dropArea:hover {
+            border-color: #999;
+            /* Darker shade of grey on hover */
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .imageBox {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            /* Add cursor pointer for selection */
+        }
+
+        .imageBox img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .imageBox:hover {
+            transform: scale(1.05);
+        }
+
+        .selected {
+            border-color: #ff6f61;
+            /* Light red */
+        }
+
+        #selectedImagesContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .selectedImage {
+            margin: 10px;
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+            border: 2px solid #ff6f61;
+            /* Light red */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .selectedImage img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 12px;
+            background-color: #67c22a;
+            border: none;
+            color: black;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            /* Smooth transition for background color change */
+        }
+
+        button:hover {
+            background-color: #a4e693;
+            /* Darker shade of blue for hover effect */
+        }
+
+        input[type="button"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 12px;
+            background-color: #3379e9;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            /* Smooth transition for background color change */
+        }
+
+        input[type="button"]:hover {
+            background-color: #23527c;
+            /* Darker shade of blue for hover effect */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+        <h2>Upload Images</h2>
+        <div id="dropArea" onclick="document.getElementById('fileInput').click();" ondrop="dropHandler(event);"
+            ondragover="dragOverHandler(event);">
+            Drag and drop images here or click to upload
+            <input type="file" id="fileInput" multiple>
+        </div>
+
+        <h2>Uploaded Images</h2>
+        <div id="fileList">
+            <!-- Uploaded images will be displayed here -->
+        </div>
+
+        <h2>Selected Images</h2>
+        <div id="selectedImagesContainer">
+
+            <!-- Selected images will be displayed here -->
+        </div>
+        <div id="display" align="center">
+            <input type="button" value="Submit" onclick="Uploaded()" />
+            <button type="button" onclick="window.location.href ='/display'">Display</button>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function dragOverHandler(event) {
+            event.preventDefault();
+            document.getElementById('dropArea').style.borderColor = '#999';
+        }
+
+        function dropHandler(event) {
+            event.preventDefault();
+            document.getElementById('dropArea').style.borderColor = '#ccc';
+
+            var fileListDiv = document.getElementById('fileList');
+
+            if (event.dataTransfer.items) {
+                for (var i = 0; i < event.dataTransfer.items.length; i++) {
+                    if (event.dataTransfer.items[i].kind === 'file') {
+                        var file = event.dataTransfer.items[i].getAsFile();
+                        handleFiles(file, fileListDiv);
+                    }
+                }
+            } else {
+                for (var i = 0; i < event.dataTransfer.files.length; i++) {
+                    var file = event.dataTransfer.files[i];
+                    handleFiles(file, fileListDiv);
+                }
+            }
+        }
+
+        function handleFiles(file, fileListDiv) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var img = new Image();
+                img.src = event.target.result;
+                var imageBox = document.createElement('div');
+                imageBox.className = 'imageBox';
+
+                // Add image
+                imageBox.appendChild(img);
+
+                // Add event listener for image selection
+                imageBox.addEventListener('click', function () {
+                    if (imageBox.classList.contains('selected')) {
+                        imageBox.classList.remove('selected');
+                        removeSelectedImage(img.src);
+                    } else {
+                        imageBox.classList.add('selected');
+                        addSelectedImage(img.src);
+                    }
+                });
+
+                fileListDiv.appendChild(imageBox);
+            };
+            reader.readAsDataURL(file);
+        }
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            var fileList = event.target.files;
+            var fileListDiv = document.getElementById('fileList');
+            for (var i = 0; i < fileList.length; i++) {
+                handleFiles(fileList[i], fileListDiv);
+            }
+        });
+        function addSelectedImage(src) {
+            var selectedImagesContainer = document.getElementById('selectedImagesContainer');
+            var selectedImage = document.createElement('div');
+            selectedImage.className = 'selectedImage';
+            var img = new Image();
+            img.src = src;
+            selectedImage.appendChild(img);
+            selectedImagesContainer.appendChild(selectedImage);
+        }
+
+        function removeSelectedImage(src) {
+            var selectedImagesContainer = document.getElementById('selectedImagesContainer');
+            var selectedImages = selectedImagesContainer.getElementsByClassName('selectedImage');
+            for (var i = 0; i < selectedImages.length; i++) {
+                var imageSrc = selectedImages[i].getElementsByTagName('img')[0].src;
+                if (imageSrc === src) {
+                    selectedImagesContainer.removeChild(selectedImages[i]);
+                    return;
+                }
+            }
+        }
+        function Uploaded() {
+            var links = "";
+            var div1 = document.getElementById("selectedImagesContainer")
+            var img_div = div1.getElementsByClassName("selectedImage")
+            for (var i = 0; i < img_div.length; i++) {
+                links += img_div[i].getElementsByTagName('img')[0].src + "$"
+            }
+
+            $.ajax({
+                url: "/imageUpload",
+                type: "POST",
+                data: { 'data': links },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+            location.reload()
+        }
+    </script>
+
+</body>
+
+</html>

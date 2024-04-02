@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicsySnap</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='Links/css/home-stylesheet_2.css')}}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="icon" href="/static/images/logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,400&display=swap');
+
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* Include padding and border in element's total width and height */
+        }
+
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        h2 {
+            font-size: 30px;
+            padding-left: 20px;
+            padding-top: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Gradient Text */
+        #grad1 {
+            background: -webkit-linear-gradient(left, orange, violet);
+            background: -o-linear-gradient(right, orange, violet);
+            background: -moz-linear-gradient(right, orange, violet);
+            background: linear-gradient(to right, orange, violet);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 3vw;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            text-decoration: none;
+        }
+
+        nav {
+            position: absolute;
+            top: 40px;
+            right: 125px;
+        }
+
+        nav ul {
+            font-size: 22px;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            padding: 1px 25px;
+            color: white;
+        }
+
+        nav ul li a:hover {
+            background-color: white;
+            border-radius: 8px;
+            color: black;
+        }
+
+        /* Button Styles */
+        .login-btn {
+            padding: 3px 5px;
+            font-size: 22px;
+            border-radius: px;
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Centered Squares */
+        .center-square,
+        .center-square2,
+        .center-square3 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 25px auto 0;
+            padding-bottom: 30px;
+        }
+
+        .center-square {
+            width: 50%;
+            height: 50%;
+        }
+
+        .center-square2 {
+            width: 50%;
+            height: 50%;
+        }
+
+        .center-square3 {
+            width: 200px;
+            height: 200px;
+            justify-content: space-between;
+        }
+
+        /* Large Text */
+        .large-text {
+            font-size: 4em;
+        }
+
+        /* Button Styles */
+        .modern-button {
+            padding: 15px 32px;
+            font-size: 16px;
+            border-radius: 12px;
+            background-color: #67c22a;
+            border: none;
+            color: black;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            /* Smooth transition for background color change */
+        }
+
+        .modern-button:hover {
+            background-color: #a4e693;
+            /* Darker shade of blue for hover effect */
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 5vw;
+            }
+
+            #grad1 {
+                font-size: 5vw;
+            }
+
+            nav ul {
+                font-size: 3vw;
+            }
+
+            .login-btn {
+                padding: 3vw 6vw;
+                font-size: 3vw;
+            }
+
+            .large-text {
+                font-size: 8vw;
+            }
+
+            .modern-button {
+                padding: 3vw 6vw;
+                font-size: 3vw;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 7vw;
+            }
+
+            #grad1 {
+                font-size: 7vw;
+            }
+
+            nav ul {
+                font-size: 4vw;
+            }
+
+            .login-btn {
+                padding: 5vw 10vw;
+                font-size: 4vw;
+            }
+
+            .large-text {
+                font-size: 12vw;
+            }
+
+            .modern-button {
+                padding: 5vw 10vw;
+                font-size: 4vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-content">
+        <h2 class="logo-text">PS | PicsySnap</h2>
+        <div class="nav-bar">
+            <nav>
+                <ul>
+                    <a href="/logout" alt target="_blank">
+                        <li><button class="login-btn">Logout</button></li>
+                    </a>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="center-square">
+        <h1 class="large-text"><span id="grad1">User Dashboard</span></h1>
+    </div>
+
+    <div class="center-square2">
+        <h5 style="color: #cfcac8;">
+            <p><b>Name: </b> {{user.name }}</p>
+            <p><b>Email: </b> {{user.email }}</p>
+        </h5>
+    </div>
+    <div class="center-square3">
+
+        <a href="/imageUpload" target="_blank">
+            <button class="modern-button">Upload Images</button>
+        </a>
+
+        <a href="/display" target="_blank">
+            <button class="modern-button">Your Images</button>
+        </a>
+    </div>
+</body>
+
+</html>

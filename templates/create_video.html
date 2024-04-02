@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Display Images</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    #container {
+        max-width: 800px;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .imageBox {
+        position: relative;
+        display: inline-block;
+        margin: 10px;
+        width: 150px;
+        height: 150px;
+        overflow: hidden;
+        border: 2px solid #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+
+    .imageBox img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .imageBox:hover {
+        transform: scale(1.05);
+    }
+
+    .selected {
+        border-color: #ff6f61;
+    }
+
+    #selectedImageInfo {
+        display: none;
+        flex: 0 0 300px;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    #selectedImageContainer img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    #attributesForm {
+        margin-top: 20px;
+    }
+
+    #attributesForm label {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    #attributesForm input[type="text"],
+    #attributesForm input[type="number"] {
+        width: calc(100% - 22px);
+        padding: 5px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    #attributesForm input[type="submit"],
+    #attributesForm button {
+        margin-top: 10px;
+        padding: 8px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        background-color: #ff6f61;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    #attributesForm button {
+        background-color: #333;
+        margin-left: 10px;
+    }
+
+    #createVideoBtn {
+        display: none;
+        margin-top: 20px;
+        text-align: center;
+    }
+</style>
+
+</head>
+<body>
+
+<div id="container">
+    <div id="fileList">
+        <h2>Uploaded Images</h2>
+        <!-- Uploaded images will be displayed here -->
+    </div>
+
+    <div id="selectedImageInfo">
+        <h2>Selected Image Attributes</h2>
+        <div id="selectedImageContainer">
+            <!-- Selected image will be displayed here -->
+        </div>
+        <div id="attributesForm">
+            <form id="image-form">
+                <label for="duration">Duration:</label>
+                <input type="number" id="duration" name="duration">
+                <label for="transition">Transition:</label>
+                <input type="text" id="transition" name="transition">
+                <label for="dimensions">Dimensions:</label>
+                <input type="text" id="dimensions" name="dimensions" readonly>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+</div>
+<div id="createVideoBtn">
+    <a href="next_page.html" id="createVideo">Create Video</a>
+</div>
+
+<script type="text/javascript">
+var links = null;
+
+window.onload = function(){
+    var text = '{{links}}';
+    console.log(text)
+    links = text.split("$")
+    var fileListDiv = document.getElementById('fileList');
+    for(var i=0;i<links.length-1;i++){
+    handleFiles(links[i],fileListDiv)
+    }
+}   
+function handleFiles(url, fileListDiv) {
+    var img = new Image();
+    img.onload = function () {
+        var imageBox = document.createElement('div');
+        imageBox.className = 'imageBox';
+        imageBox.appendChild(img);
+        
+        console.log("Image dimensions: " + img.width + "x" + img.height);
+        img.setAttribute('dimensions', img.width + "x" + img.height);
+
+        imageBox.addEventListener('click', function () {
+            var selectedImage = document.querySelector('.selected');
+            if (selectedImage === imageBox) {
+                deselectImage(img);
+            } else {
+                if (selectedImage) {
+                    selectedImage.classList.remove('selected');
+                }
+                imageBox.classList.add('selected');
+                showAttributesForm(img, imageBox);
+            }
+        });
+
+        fileListDiv.appendChild(imageBox);
+    };
+    img.src = url;
+}
+
+function showAttributesForm(img, imageBox) {
+    var attributesForm = document.getElementById('attributesForm');
+    var durationInput = document.getElementById('duration');
+    var transitionInput = document.getElementById('transition');
+    var dimensionsInput = document.getElementById('dimensions');
+    dimensionsInput.value = img.getAttribute('dimensions');
+
+    if (img.hasAttribute('data-duration') && img.hasAttribute('data-transition')) {
+        durationInput.value = img.getAttribute('data-duration');
+        transitionInput.value = img.getAttribute('data-transition');
+    } else {
+        durationInput.value = '';
+        transitionInput.value = '';
+    }
+
+    var selectedImageInfo = document.getElementById('selectedImageInfo');
+    selectedImageInfo.style.display = 'block';
+
+    var selectedImageContainer = document.getElementById('selectedImageContainer');
+    selectedImageContainer.innerHTML = '';
+    selectedImageContainer.appendChild(img.cloneNode(true));
+
+    attributesForm.style.display = 'block';
+}
+
+document.getElementById('image-form').querySelector('input[type="submit"]').addEventListener('click', function(event) {
+    event.preventDefault();
+    var duration = document.getElementById('duration').value;
+    var transition = document.getElementById('transition').value;
+    var selectedImage = document.querySelector('.selected img');
+
+    selectedImage.setAttribute('data-duration', duration);
+    selectedImage.setAttribute('data-transition', transition);
+
+    hideAttributesForm();
+    checkAllImagesAttribute();
+
+    var selectedImageBox = document.querySelector('.selected');
+    if (selectedImageBox) {
+        selectedImageBox.classList.remove('selected');
+    }
+});
+
+function deselectImage(img) {
+    var selectedImageInfo = document.getElementById('selectedImageInfo');
+    var attributesForm = document.getElementById('attributesForm');
+    var selectedImageContainer = document.getElementById('selectedImageContainer');
+    var durationInput = document.getElementById('duration');
+    var transitionInput = document.getElementById('transition');
+
+    selectedImageInfo.style.display = 'none';
+    attributesForm.style.display = 'none';
+    selectedImageContainer.innerHTML = '';
+    durationInput.value = '';
+    transitionInput.value = '';
+    var selectedImage = document.querySelector('.selected');
+    if (selectedImage) {
+        selectedImage.classList.remove('selected');
+    }
+}
+
+function checkAllImagesAttribute() {
+    var images = document.querySelectorAll('.imageBox');
+    var allAttributesGiven = true;
+    images.forEach(function(image) {
+        if (!image.querySelector('img').hasAttribute('data-duration') ||
+            !image.querySelector('img').hasAttribute('data-transition')) {
+            allAttributesGiven = false;
+        }
+    });
+    if (allAttributesGiven) {
+        document.getElementById('createVideoBtn').style.display = 'block';
+    } else {
+        document.getElementById('createVideoBtn').style.display = 'none';
+    }
+}
+
+function hideAttributesForm() {
+    var selectedImageInfo = document.getElementById('selectedImageInfo');
+    selectedImageInfo.style.display = 'none';
+}
+
+</script>
+
+</body>
+</html>
