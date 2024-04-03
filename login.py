@@ -36,7 +36,7 @@ def connect_to_database():
     return  psycopg2.connect("postgresql://arman-03:I4ZO4v4sWUCzH1n1Ep8HRw@picsysnap-8938.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/picsysnap?sslmode=verify-full&sslrootcert=root.crt")
 
 conn = connect_to_database()
-pt= conn.cursor()
+# pt= conn.cursor()
 
 SCREEN_SIZE = (1980,1080)
 def clipGenerator(base64_string,SCREEN_SIZE,clip_duration):
@@ -174,6 +174,7 @@ def image():
             photo_dimensions = "default"
             for i in links:
                 STR = "INSERT INTO photos(username,photo_name,photo,photo_dimensions) VALUES(%s, %s, %s, %s)"
+                pt=conn.cursor()
                 pt.execute(STR, (username, photo_name, i, photo_dimensions))
                 conn.commit()
             return redirect(url_for("display"))
@@ -188,6 +189,7 @@ def display():
         username=session['mail']
         if username !="":
             STR = "SELECT photo FROM photos WHERE username = %s"
+            pt=conn.cursor()
             pt.execute(STR, (username,))
             data = pt.fetchall()
             for i in data:
