@@ -93,6 +93,7 @@ for tbl_name in tables:
         with conn.cursor() as cursor:
             cursor.execute(sql_cmd)
         conn.commit()
+
 class User:
     def __init__(self, email, password, name):
         self.name = name
@@ -105,7 +106,7 @@ class User:
 def dashboard():
     if 'mail' in session:
         with conn.cursor() as cursor:
-            cursor.execute('SELECT * FROM user WHERE email = %s', (session['mail'],))
+            cursor.execute('SELECT * FROM "user" WHERE email = %s', (session['mail'],))
             data = cursor.fetchone()
             if data:
                 user = User(data[2],data[3],data[1])
@@ -120,17 +121,17 @@ def register():
         password = request.form.get('password')
 
         with conn.cursor() as cursor:
-            cursor.execute('SELECT * FROM user WHERE email = %s', (email,))
+            cursor.execute('SELECT * FROM "user" WHERE email = %s', (email,))
             existing_user = cursor.fetchone()
             if existing_user:
                 flash('A user with this email already exists. Please log in or use a different email.')
                 return redirect(url_for('register'))
             else:
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                cursor.execute('INSERT INTO user (name, email, password) VALUES (%s, %s, %s)', (name, email, hashed_password))
+                cursor.execute('INSERT INTO "user" (name, email, password) VALUES (%s, %s, %s)', (name, email, hashed_password))
                 conn.commit()
                 session['mail'] = email
-                return redirect(url_for('login'))
+                return render_template('login.html')
     return render_template('login.html')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -150,7 +151,7 @@ def login():
                     session['mail'] = email
                     return redirect(url_for('dashboard'))
             else :
-                flash('User not found!. please register')
+                flash('User not found!. Please register')
                 return redirect(url_for('login'))
             
     return render_template('login.html')
@@ -205,7 +206,7 @@ def display():
 
 @app.route('/video')
 def video():
-    time.sleep(5)
+    time.sleep(9)
     return render_template('video.html')
 
 @app.route('/logout')
