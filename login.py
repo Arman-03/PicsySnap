@@ -208,7 +208,7 @@ def display():
 
 @app.route('/video')
 def video():
-    time.sleep(9)
+    time.sleep(15)
     return render_template('video.html')
 
 @app.route('/logout')
