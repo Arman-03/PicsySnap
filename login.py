@@ -8,6 +8,7 @@ import os
 import base64
 import moviepy.editor as mpy
 import imageio
+import time
 
 app = Flask(__name__,static_folder='./static')
 app.secret_key = 'secret_key'
@@ -37,7 +38,7 @@ def clipGenerator(base64_string,SCREEN_SIZE,clip_duration):
         find_idx = base64_string.find(';base64,')
         base64_string = base64_string[find_idx+8:]
     imgdata = base64.b64decode(base64_string)
-    img = imageio.imread(imgdata)#path
+    img = imageio.imread(imgdata)
     image = mpy.ImageClip(img).\
         set_position(('center', 'center')).\
         resize(width=SCREEN_SIZE[1])
@@ -48,35 +49,23 @@ def VideoCreator(audio,VDLINKS):
     input_data=VDLINKS.split("$")
     input_data.pop()
     audio_path = f"static/audio/{audio}"
-    print(audio_path)
     clips=list()
     for item in input_data:
         base64_string = item
-        #transition_option = item[1]
         clip_duration = 3;
-        # print(base64_string)
         pureClip = clipGenerator(base64_string,SCREEN_SIZE,clip_duration)
-        #modifiedClip = transitions(pureClip,transition_option,Duration,clip_duration)
         clips.append(pureClip)
     finalclip = mpy.concatenate_videoclips(clips)
     audio_clip = mpy.AudioFileClip(audio_path)
     video_duration = 3*len(input_data)
-    
-    # Calculate how many times to repeat the audio
     audio_duration = audio_clip.duration
 
     repeat_count = max(1, video_duration / audio_duration)
     if type(repeat_count) is not int:
         repeat_count = int(repeat_count)+1
     repeated_audio_clip = mpy.concatenate_audioclips([audio_clip] * repeat_count)
-    
-    # Trim audio to match video duration
     repeated_audio_clip = repeated_audio_clip.subclip(0, video_duration)
-    
-    # Set audio for the final clip
     finalclip = finalclip.set_audio(repeated_audio_clip)
-    
-    # Write video file
     finalclip.write_videofile("static/images/video.mp4", fps=10)
     
     return True
@@ -122,14 +111,12 @@ def register():
         password = request.form.get('password')
 
         with conn.cursor() as cursor:
-            # Check if user with the same email exists
             cursor.execute('SELECT * FROM User WHERE email = %s', (email,))
             existing_user = cursor.fetchone()
             if existing_user:
                 flash('A user with this email already exists. Please log in or use a different email.')
                 return redirect(url_for('register'))
             else:
-                # Create new user
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 cursor.execute('INSERT INTO User (name, email, password) VALUES (%s, %s, %s)', (name, email, hashed_password))
                 conn.commit()
@@ -144,14 +131,13 @@ def login():
         email = request.form.get('Email')
         password = request.form.get('Password')
         with conn.cursor() as cursor:
-            # Check if user exists and verify password
             cursor.execute(f"SELECT * FROM User WHERE email = '{email}'")
             user = cursor.fetchone()
             if user :
                 if not bcrypt.checkpw(password.encode('utf-8'), user[3].encode('utf-8')):
                     flash('Invalid email or password. Please try again.')
                     return redirect(url_for('login'))
-                else :# Set session
+                else :
                     session['mail'] = email
                     return redirect(url_for('dashboard'))
             else :
@@ -203,18 +189,14 @@ def display():
     if request.method=="POST":
         ID = request.form.get('data')
         audio ,imagelinks = ID.split("$")[0],ID.split("$")[1:]
-        print(audio)
-        # imagelinks = imagelinks.split("$").pop()
         imagelinks = "$".join(imagelinks)
         completed = VideoCreator(audio,imagelinks)
-        # imagelinks = imagelinks.split("$")
-        # for i in imagelinks:
-        #     print(i[:30])
         if completed:
-            return redirect(url_for('video')) 
+            return redirect(url_for('video'))
 
 @app.route('/video')
 def video():
+    time.sleep(5)
     return render_template('video.html')
 
 @app.route('/logout')
