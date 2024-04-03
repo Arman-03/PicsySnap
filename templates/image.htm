@@ -47,7 +47,6 @@
 
         #dropArea:hover {
             border-color: #999;
-            /* Darker shade of grey on hover */
         }
 
         #fileInput {
@@ -73,7 +72,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease;
             cursor: pointer;
-            /* Add cursor pointer for selection */
         }
 
         .imageBox img {
@@ -104,7 +102,6 @@
             height: 150px;
             overflow: hidden;
             border: 2px solid #ff6f61;
-            /* Light red */
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         }
@@ -124,12 +121,10 @@
             color: black;
             cursor: pointer;
             transition: background-color 0.3s;
-            /* Smooth transition for background color change */
         }
 
         button:hover {
             background-color: #a4e693;
-            /* Darker shade of blue for hover effect */
         }
 
         input[type="button"] {
@@ -141,12 +136,10 @@
             color: white;
             cursor: pointer;
             transition: background-color 0.3s;
-            /* Smooth transition for background color change */
         }
 
         input[type="button"]:hover {
             background-color: #23527c;
-            /* Darker shade of blue for hover effect */
         }
     </style>
 </head>
@@ -212,10 +205,8 @@
                 var imageBox = document.createElement('div');
                 imageBox.className = 'imageBox';
 
-                // Add image
                 imageBox.appendChild(img);
 
-                // Add event listener for image selection
                 imageBox.addEventListener('click', function () {
                     if (imageBox.classList.contains('selected')) {
                         imageBox.classList.remove('selected');

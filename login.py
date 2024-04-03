@@ -9,27 +9,33 @@ import base64
 import moviepy.editor as mpy
 import imageio
 import time
+import psycopg2
 
 app = Flask(__name__,static_folder='./static')
 app.secret_key = 'secret_key'
-import pymysql
-db = pymysql.connect(
-    host='localhost',
-    user='arman-03',
-    password='Arman@14'
-)
-cur = db.cursor()
-sql_D="create database if not exists `picsysnap`"
-cur.execute(sql_D)
-db.commit()
-cur.close()
-db.close()
-conn = pymysql.connect(
-    host='localhost',
-    user='arman-03',
-    password='Arman@14',
-    database='picsysnap'  
-)
+# import pymysql
+# db = pymysql.connect(
+#     host='localhost',
+#     user='arman-03',
+#     password='Arman@14'
+# )
+# cur = db.cursor()
+# sql_D="create database if not exists `picsysnap`"
+# cur.execute(sql_D)
+# db.commit()
+# cur.close()
+# db.close()
+# conn = pymysql.connect(
+#     host='localhost',
+#     user='arman-03',
+#     password='Arman@14',
+#     database='picsysnap'  
+# )
+
+def connect_to_database():
+    return  psycopg2.connect("postgresql://arman-03:I4ZO4v4sWUCzH1n1Ep8HRw@picsysnap-8938.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/picsysnap?sslmode=verify-full")
+
+conn = connect_to_database()
 pt= conn.cursor()
 
 SCREEN_SIZE = (1980,1080)
@@ -52,7 +58,7 @@ def VideoCreator(audio,VDLINKS):
     clips=list()
     for item in input_data:
         base64_string = item
-        clip_duration = 3;
+        clip_duration = 3
         pureClip = clipGenerator(base64_string,SCREEN_SIZE,clip_duration)
         clips.append(pureClip)
     finalclip = mpy.concatenate_videoclips(clips)
@@ -71,20 +77,22 @@ def VideoCreator(audio,VDLINKS):
     return True
 
 
-def TableCheck(tbl_name):
-    sql_comand=f"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema ='picsysnap' AND table_name = '{tbl_name}'"
-    pt.execute(sql_comand)
-    tbl_check=pt.fetchall()[0][0]
-    return tbl_check
-tbl=['User','photos']
-if TableCheck(tbl[0])==0:
-    sql_cmd=f"create table {tbl[0]}( id int NOT NULL AUTO_INCREMENT,name varchar(40) NOT NULL, email varchar(255) UNIQUE,password varchar(255),PRIMARY KEY (id))"
-    pt.execute(sql_cmd)
-    conn.commit()
-if TableCheck(tbl[1])==0:
-    sql_cmd=f"create table {tbl[1]}( id int NOT NULL AUTO_INCREMENT,username varchar(40),photo_name varchar(255),photo LONGBLOB,photo_dimensions VARCHAR(255),PRIMARY KEY (id))"
-    pt.execute(sql_cmd)
-    conn.commit()
+def table_exists(tbl_name):
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = %s)", (tbl_name,))
+        return cursor.fetchone()[0]
+
+tables = ["user", "photos"]
+
+for tbl_name in tables:
+    if not table_exists(tbl_name):
+        if tbl_name == "user":
+            sql_cmd = "CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR(40) NOT NULL, email VARCHAR(255) UNIQUE, password VARCHAR(255) NOT NULL)"
+        elif tbl_name == "photos":
+            sql_cmd = "CREATE TABLE photos (id SERIAL PRIMARY KEY, username VARCHAR(40) NOT NULL, photo_name VARCHAR(255), photo BYTEA, photo_dimensions VARCHAR(255))"
+        with conn.cursor() as cursor:
+            cursor.execute(sql_cmd)
+        conn.commit()
 class User:
     def __init__(self, email, password, name):
         self.name = name
@@ -97,10 +105,11 @@ class User:
 def dashboard():
     if 'mail' in session:
         with conn.cursor() as cursor:
-            cursor.execute('SELECT * FROM User WHERE email = %s', (session['mail'],))
+            cursor.execute('SELECT * FROM user WHERE email = %s', (session['mail'],))
             data = cursor.fetchone()
-            user = User(data[2],data[3],data[1])
-            return render_template('dashboard.html', user=user)
+            if data:
+                user = User(data[2],data[3],data[1])
+                return render_template('dashboard.html', user=user)
     return redirect('/login')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -111,17 +120,17 @@ def register():
         password = request.form.get('password')
 
         with conn.cursor() as cursor:
-            cursor.execute('SELECT * FROM User WHERE email = %s', (email,))
+            cursor.execute('SELECT * FROM user WHERE email = %s', (email,))
             existing_user = cursor.fetchone()
             if existing_user:
                 flash('A user with this email already exists. Please log in or use a different email.')
                 return redirect(url_for('register'))
             else:
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                cursor.execute('INSERT INTO User (name, email, password) VALUES (%s, %s, %s)', (name, email, hashed_password))
+                cursor.execute('INSERT INTO user (name, email, password) VALUES (%s, %s, %s)', (name, email, hashed_password))
                 conn.commit()
                 session['mail'] = email
-                return redirect(url_for('dashboard'))
+                return redirect(url_for('login'))
     return render_template('login.html')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -131,7 +140,7 @@ def login():
         email = request.form.get('Email')
         password = request.form.get('Password')
         with conn.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM User WHERE email = '{email}'")
+            cursor.execute('SELECT * FROM "user" WHERE email = %s', (email,))
             user = cursor.fetchone()
             if user :
                 if not bcrypt.checkpw(password.encode('utf-8'), user[3].encode('utf-8')):
@@ -159,12 +168,12 @@ def image():
         if data!=None :
             links = data.split("$")
             links.pop()
-            Username = session['mail']
+            username = session['mail']
             photo_name ="default"
             photo_dimensions = "default"
             for i in links:
-                STR =f"INSERT INTO photos(username,photo_name,photo,photo_dimensions) VALUES('{Username}','{photo_name}','{i}','{photo_dimensions}')"
-                pt.execute(STR)
+                STR = "INSERT INTO photos(username,photo_name,photo,photo_dimensions) VALUES(%s, %s, %s, %s)"
+                pt.execute(STR, (username, photo_name, i, photo_dimensions))
                 conn.commit()
             return redirect(url_for("display"))
     return render_template('image.htm')
@@ -177,14 +186,14 @@ def display():
     if request.method=="GET":
         username=session['mail']
         if username !="":
-            STR =f"SELECT photo FROM `photos` WHERE username ='{username}'"
-            pt.execute(STR)
+            STR = "SELECT photo FROM photos WHERE username = %s"
+            pt.execute(STR, (username,))
             data = pt.fetchall()
             for i in data:
-                link+=i[0].decode("utf-8")+"$"
+                link += bytes(i[0]).decode("utf-8") + "$"
         else:
-            #session doesn't exist
-            pass
+            flash('Session expired. Please log in again.', 'error')
+            return redirect(url_for('login'))
         return render_template('display.html',link=link)
     if request.method=="POST":
         ID = request.form.get('data')
