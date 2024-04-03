@@ -175,7 +175,7 @@ def image():
                 STR = "INSERT INTO photos(username,photo_name,photo,photo_dimensions) VALUES(%s, %s, %s, %s)"
                 with conn.cursor() as cursor:
                     cursor.execute(STR, (username, photo_name, i, photo_dimensions))
-                    conn.commit()
+            conn.commit()
             return redirect(url_for("display"))
     return render_template('image.htm')
 
